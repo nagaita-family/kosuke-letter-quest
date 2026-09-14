@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Kosuke Letter Quest v12.1</title>
+  <title>Kosuke Letter Quest v12.2</title>
+  <style id="dynamic-style"></style>
 </head>
 <body>
 <div id="game-shell" tabindex="0">
@@ -55,7 +56,6 @@
 
   <div id="message"></div>
   <div id="xp-pop" class="hidden">+40 XP</div>
-
 
   <div id="enemy-turn" class="hidden">
     <div class="enemy-turn-title">ENEMY TURN!</div>
@@ -115,23 +115,18 @@
 
   <div id="road-tip" class="hidden">← → DODGE ROCKS · ◆ GIVES 2 CORES</div>
 </div>
+
 <script>
 (async()=>{
-  async function loadGzipB64(prefix,count){
-    const parts=await Promise.all(Array.from({length:count},(_,i)=>fetch(`./${prefix}-${String(i).padStart(2,'0')}.b64`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`${prefix} load failed`);return r.text()})));
-    const bin=atob(parts.join('').trim());
-    const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));
-    const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
-    return new Response(stream).text();
-  }
-  try{
-    const [css,js]=await Promise.all([loadGzipB64('style',2),loadGzipB64('game',7)]);
-    const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
-    (0,Function)(js)();
-  }catch(err){
-    console.error(err);
-    document.body.innerHTML='<div style="min-height:100vh;display:grid;place-items:center;background:#071019;color:white;font:700 18px system-ui">LOAD ERROR — reload the page</div>';
-  }
+const gf=['./game-00.b64','./game-01.b64','./game-02.b64','./game-03.b64','./game-04.b64','./game-05.b64','./game-06.b64','./game-07.b64'];
+const sf=['./style-00.b64','./style-01.b64'];
+async function load(files){
+ const a=await Promise.all(files.map(async f=>{const r=await fetch(f,{cache:"no-store"});if(!r.ok)throw Error(f);return (await r.text()).trim()}));
+ const b=atob(a.join(""));const u=Uint8Array.from(b,c=>c.charCodeAt(0));
+ return new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+}
+try{document.getElementById("dynamic-style").textContent=await load(sf);(0,Function)(await load(gf))();}
+catch(e){console.error(e);document.body.innerHTML='<div style="color:white;background:#071019;height:100vh;display:grid;place-items:center">LOAD ERROR — Reload the page.</div>';}
 })();
 </script>
 </body>
