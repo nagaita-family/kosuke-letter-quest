@@ -24,6 +24,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      - name: Build and validate v12.4
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip, hashlib, lzma, subprocess
+          for kind, count, output in [('game', 8, 'game.js'), ('style', 2, 'style.css')]:
+              encoded = ''.join(Path(f'{kind}-{n:02d}.b64').read_text().strip() for n in range(count))
+              Path(output).write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          source = lzma.decompress(base64.b64decode(Path('enhance_v124.py.xz.b64').read_text()))
+          assert hashlib.sha256(source).hexdigest() == 'b49138832d5db26e531a06de27c766f89621aff6a25c07af8d186460e00347fe'
+          Path('enhance_v124.py').write_bytes(source)
+          subprocess.run(['python3', 'enhance_v124.py'], check=True)
+          assert hashlib.sha256(Path('game.js').read_bytes()).hexdigest() == '41247951d19ab68da402333065e187fcbb48f1c0608b9d8fe4af0767f98fa525'
+          assert hashlib.sha256(Path('style.css').read_bytes()).hexdigest() == 'ed300bee97b4b8916556d28f5a61177afa590dbdb1e3e217809e321b1892c6ae'
+          subprocess.run(['node', '--check', 'game.js'], check=True)
+          assert 'Kosuke Letter Quest v12.4' in Path('index.html').read_text()
+          print('v12.4 build verified')
+          PY
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload site artifact
@@ -33,5 +51,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-# Redeploy after transfer to nagaita-family

@@ -1,43 +1,28 @@
 # Kosuke Letter Quest
 
-Kosuke Letter Quest v12.3.
+Version **12.4** — mini-monster sword encounters and three-shot aiming battles.
 
-## Repository / Hosting
+## Repository & hosting
 
-- Repository: `nagaita-family/kosuke-letter-quest`
-- Main branch: `main`
-- Hosting: GitHub Pages
-- Publish source: GitHub Actions
-- Deployment workflow: `.github/workflows/pages.yml`
-- Public URL: `https://family.nagaita.jp/kosuke-letter-quest/`
-- Family TOP: `https://family.nagaita.jp/`
-
-This repository is independent from Miori Kanji Quest and other Family apps.
+- Canonical repo: `nagaita-family/kosuke-letter-quest` (`main`)
+- Game: https://family.nagaita.jp/kosuke-letter-quest/
+- Family TOP: https://family.nagaita.jp/
+- Publisher: `.github/workflows/pages.yml` (GitHub Actions / GitHub Pages)
+- This game is independent of other Family apps. Never update the old personal repo.
 
 ## Controls
 
-- AUTO RUN: Left / Right arrows to switch between three lanes.
-- Battle (Kosuke turn): Left / Right arrows to choose a letter, Space to attack, R to repeat the letter, Up to open SPECIAL.
-- Battle (enemy turn): Move the shield with all four arrow keys (Left / Right / Up / Down). Watch the incoming orb and put the shield over its landing point. Space does not automatically guard.
-- Route fork: Left / Right to choose, Space to confirm.
+- Road: Left/Right changes one of three lanes. **A** swings the sword at approaching small monsters in your lane; a successful hit awards 8 XP. A mini monster you pass in the same lane without defeating costs 6 HP.
+- Main monster: select an English letter with Left/Right; Space confirms. A correct answer opens the aiming round.
+- Aiming: all four arrow keys move the crosshair; **Space** fires. You have **three shots per correct answer**. Misses use ammunition without damage; hits reduce monster HP. A defeated monster ends the battle; otherwise the enemy attacks after the third shot.
+- Enemy turn: all four arrow keys position the shield; intercept the incoming projectile to take zero damage. Space does not auto-block.
+- Special attack: Up during the letter question opens the special menu; Left/Right chooses, Space activates, Up cancels. R repeats the spoken letter.
+- Route fork: Left/Right chooses, Space confirms.
 
-## v12.3 guard and motion changes
+The camera does not shake during attacks, guards, victories or sword swings.
 
-- Removed whole-screen camera shake, including after normal and special attacks, hits, successful guards, and victories.
-- Incoming enemy attack shows a target marker and an orb approaching the shield plane.
-- Shield position, not a Space press, determines the outcome: intercept the orb for zero HP loss; miss it to take damage.
-- Successful guard has a brief clean, positive glint instead of fireworks-like sparks.
+## Build and deployment
 
-## Development rules
+The original v12.3 `game-*.b64` and `style-*.b64` chunks are retained as immutable base sources. GitHub Actions reconstructs ordinary `game.js` and `style.css`, then applies the checked `enhance_v124.py.xz.b64` upgrade script to build v12.4. The workflow validates SHA-256 hashes and JavaScript syntax before publishing `index.html` and the generated assets. Do not remove the base chunks or upgrade script until the files have been migrated to ordinary repository source files.
 
-- Treat `nagaita-family/kosuke-letter-quest` as the canonical repository.
-- Do not use the old `nagaitashouten-star/kosuke-letter-quest` repository as the development target.
-- The app must work correctly under the `/kosuke-letter-quest/` path.
-- Use relative paths for HTML, CSS, JavaScript, images, and other static assets whenever possible.
-- Avoid root-absolute paths such as `/assets/...` because the app is hosted under a subpath.
-- If PWA support is added, use `start_url: "./"` and `scope: "./"` by default.
-- Verify production behavior at `https://family.nagaita.jp/kosuke-letter-quest/`.
-
-## Deployment
-
-The browser game is packaged as static files and deployed automatically by `.github/workflows/pages.yml` whenever changes are pushed to `main`. The `game-*.b64` and `style-*.b64` chunks are compressed game assets loaded via relative paths by `index.html`. Update all chunks together when publishing a new build.
+Use relative asset paths (not root-absolute `/assets/...`) to support the `/kosuke-letter-quest/` subpath. If adding PWA, default to `start_url: "./"` and `scope: "./"`. Verify the live result on the custom-domain game URL above.

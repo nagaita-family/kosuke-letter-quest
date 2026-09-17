@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Kosuke Letter Quest v12.3</title>
-  <style id="dynamic-style"></style>
+  <title>Kosuke Letter Quest v12.4</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 <div id="game-shell" tabindex="0">
@@ -57,6 +57,9 @@
   <div id="message"></div>
   <div id="xp-pop" class="hidden">+40 XP</div>
 
+
+  <div id="shooter-ui" class="hidden"><div class="shoot-title">AIM & SHOOT!</div><div id="ammo-count">● ● ●</div><div id="aim-result">← ↑ ↓ → AIM · SPACE FIRE</div></div>
+
   <div id="enemy-turn" class="hidden">
     <div class="enemy-turn-title">MOVE THE SHIELD!</div>
     <div id="guard-ring"><div id="guard-ring-inner">🛡️</div></div>
@@ -64,7 +67,7 @@
   </div>
 
   <div id="battle-ui" class="hidden">
-    <div id="prompt"><span>🔊</span><span>LISTEN!</span><small>← → SELECT · SPACE ATTACK · ↑ SPECIAL · R REPEAT</small></div>
+    <div id="prompt"><span>🔊</span><span>LISTEN!</span><small>← → SELECT · SPACE CONFIRM · ↑ SPECIAL · R REPEAT</small></div>
     <div id="choices"><div class="choice">A</div><div class="choice selected">B</div><div class="choice">D</div></div>
   </div>
 
@@ -104,7 +107,7 @@
       <div class="brand">KOSUKE</div>
       <h1>LETTER QUEST</h1>
       <p>Run through 10 worlds, choose routes, dodge hazards, collect Power Cores, and blast monsters with letters.</p>
-      <div class="controls"><span>AUTO RUN</span><span>← → DODGE</span><span>SPACE ATTACK</span><span>↑ SPECIAL</span></div>
+      <div class="controls"><span>AUTO RUN</span><span>← → MOVE · A SWORD</span><span>SPACE ATTACK</span><span>↑ SPECIAL</span></div>
       <div class="start">PRESS SPACE TO START</div>
     </div>
   </div>
@@ -113,20 +116,8 @@
     <div class="finish-card"><div class="finish-title">ALL STAGES CLEAR!</div><p>Kosuke and all three friends made it through the adventure!</p><div class="start">PRESS ENTER TO PLAY AGAIN</div></div>
   </div>
 
-  <div id="road-tip" class="hidden">← → DODGE ROCKS · ◆ GIVES 2 CORES</div>
+  <div id="road-tip" class="hidden">← → LANES · A SWORD MINI MONSTERS · ◆ +2 CORES</div>
 </div>
-<script>
-(async()=>{
-const gf=['./game-00.b64','./game-01.b64','./game-02.b64','./game-03.b64','./game-04.b64','./game-05.b64','./game-06.b64','./game-07.b64'];
-const sf=['./style-00.b64','./style-01.b64'];
-async function load(files){
- const a=await Promise.all(files.map(async f=>{const r=await fetch(f,{cache:"no-store"});if(!r.ok)throw Error(f);return (await r.text()).trim()}));
- const b=atob(a.join(""));const u=Uint8Array.from(b,c=>c.charCodeAt(0));
- return new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
-}
-try{document.getElementById("dynamic-style").textContent=await load(sf);(0,Function)(await load(gf))();}
-catch(e){console.error(e);document.body.innerHTML='<div style="color:white;background:#071019;height:100vh;display:grid;place-items:center">LOAD ERROR — Reload the page.</div>';}
-})();
-</script>
+<script src="game.js"></script>
 </body>
 </html>
