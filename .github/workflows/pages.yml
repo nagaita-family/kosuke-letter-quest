@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Build and validate v12.4
+      - name: Build and validate v12.5
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -38,10 +38,21 @@ jobs:
           subprocess.run(['python3', 'enhance_v124.py'], check=True)
           assert hashlib.sha256(Path('game.js').read_bytes()).hexdigest() == '41247951d19ab68da402333065e187fcbb48f1c0608b9d8fe4af0767f98fa525'
           assert hashlib.sha256(Path('style.css').read_bytes()).hexdigest() == 'ed300bee97b4b8916556d28f5a61177afa590dbdb1e3e217809e321b1892c6ae'
+          assert hashlib.sha256(Path('enhance_v125.py').read_bytes()).hexdigest() == '57b8cc0c57049bd36057c3ed33134e2bc9c9554075ee9a73e1071fd9fd3ed355'
+          subprocess.run(['python3', 'enhance_v125.py'], check=True)
+          assert hashlib.sha256(Path('game.js').read_bytes()).hexdigest() == '59c05dbbcacd3c90ef9c5d039bac8d4ec9412153a033fc4eff1e3a9f9607d997'
+          assert hashlib.sha256(Path('style.css').read_bytes()).hexdigest() == 'd2b543a44a33eba0cf8568528399bf2d9a359bf85bd296c301a6aec9561bdd94'
           subprocess.run(['node', '--check', 'game.js'], check=True)
-          assert 'Kosuke Letter Quest v12.4' in Path('index.html').read_text()
-          print('v12.4 build verified')
+          assert 'Kosuke Letter Quest v12.5' in Path('index.html').read_text()
+          subprocess.run(['node', 'tests/logic-regression.cjs', 'game.js'], check=True)
+          print('v12.5 build verified')
           PY
+      - name: Browser regression tests
+        run: |
+          npm install --prefix "$RUNNER_TEMP/road-qa" playwright@1.58.2
+          "$RUNNER_TEMP/road-qa/node_modules/.bin/playwright" install --with-deps chromium
+          python3 -m http.server 8765 --bind 127.0.0.1 > "$RUNNER_TEMP/road-server.log" 2>&1 &
+          NODE_PATH="$RUNNER_TEMP/road-qa/node_modules" QA_SCREENSHOTS="$RUNNER_TEMP/road-screenshots" node tests/road-regression.cjs
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload site artifact
@@ -51,3 +62,11 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify production assets and real browser controls
+        run: NODE_PATH="$RUNNER_TEMP/road-qa/node_modules" QA_SCREENSHOTS="$RUNNER_TEMP/road-screenshots" node tests/production-smoke.cjs
+      - name: Save browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: road-qa
+          path: ${{ runner.temp }}/road-screenshots
