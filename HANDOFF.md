@@ -35,6 +35,8 @@ Generated `game.js`, `style.css`, and expanded v12.4 script are NOT committed.
   the player remains visible. Gun and sword target screen positions account for
   the world transform. The collision lane is unchanged. Browser regression
   checks near/far movement and passing a center rock safely from a side lane.
+  The perspective shear applies only to the road surface; scenery and monsters
+  translate by their projected distance and remain upright.
 - The road renderer omits Kosuke's whole body/back and shows only a foreground hand and held sword.
   Existing world geometry, scenery, pickups, branch and collision projection remain intact.
 - A sword attack uses the existing target/hit/XP mechanics, with a large foreground swing.

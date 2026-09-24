@@ -35,7 +35,7 @@ const base = process.argv[2] || 'http://127.0.0.1:8765';
   await check('progress',stopped,'release immediately stops');
   await key('ArrowLeft');await step(300);await check('laneIndex',-1,'left lane');
   await check('forestPlayerX() < W/2-40',true,'first-person body moves left');
-  await check('forestScreenPoint(project(progress+100,0,H*.43)).x > W/2+90',true,'nearby rock position shifts right');
+  await check('project(progress+100,0,H*.43).x > W/2+90',true,'nearby rock position shifts right');
   await check('Math.abs(forestWorldShift(H*.43)) < 25 && forestWorldShift(H*.85) < -120',true,'near scenery moves more than horizon');
   if(process.env.QA_SCREENSHOTS){fs.mkdirSync(process.env.QA_SCREENSHOTS,{recursive:true});await page.screenshot({path:process.env.QA_SCREENSHOTS+'/forest-left.png'})}
   await key('ArrowRight');await step(300);await check('laneIndex',0,'right lane');
