@@ -23,6 +23,9 @@ const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
   await page.keyboard.press('ArrowLeft');await page.keyboard.down('ArrowUp');await page.waitForTimeout(3050);await page.keyboard.up('ArrowUp');await page.waitForTimeout(150);
   assert.equal(await page.locator('#run-status').textContent(),'A  ⚔');
   if(process.env.QA_SCREENSHOTS)await page.screenshot({path:process.env.QA_SCREENSHOTS+'/production-ready.png'});
+  // The first-person camera follows the left lane. Return to center before the
+  // fixed reticle sequence below so it remains aimed at the same visible target.
+  await page.keyboard.press('ArrowRight');await page.waitForTimeout(350);
   await page.keyboard.press('ArrowDown');await page.waitForFunction(()=>document.querySelector('#run-status').textContent==='↓ GUN · SPACE FIRE');
   if(process.env.QA_SCREENSHOTS)await page.screenshot({path:process.env.QA_SCREENSHOTS+'/production-gun.png'});
   for(let i=0;i<4;i++)await page.keyboard.press('ArrowLeft');
