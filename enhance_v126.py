@@ -9,8 +9,8 @@ def replace(old,new):
 
 replace('const AIM_BOUNDS=', '''// This prototype is intentionally restricted to GREEN FOREST.
 const forestView=()=>stageIndex===0;
-// Follow the active lane in first person; keep the held weapon screen anchored.
-const forestCameraX=()=>forestView()&&(state==="run"||state==="forestgun")?lateral*300:0;
+// The path stays ahead. The foreground body moves to the selected lane.
+const forestPlayerX=()=>W*.5+lateral*390;
 const forestGunUI=$("forest-gun-ui"),forestAmmo=$("forest-ammo"),forestGunMessage=$("forest-gun-message");
 let forestAimX=W*.5,forestAimY=H*.60,forestBullets=4,forestReloadUntil=0;
 let forestShotAt=0,forestShotHit=false,forestShotX=0,forestShotY=0;
@@ -23,13 +23,13 @@ function updateForestGunHUD(now=performance.now()){
 }
 function enterForestGun(){
   if(!forestView()||state!=="run"||branchPhase==="choose"||branchPhase==="turn"||swordAction)return;
-  state="forestgun";keys={};forestAimX=W*.5;forestAimY=H*.59;
+  state="forestgun";keys={};forestAimX=forestPlayerX();forestAimY=H*.59;
   forestShotAt=0;updateForestGunHUD();msg("AIM & SHOOT!");tone(450,.09,"triangle",.024);
 }
 function leaveForestGun(){if(state!=="forestgun")return;state="run";keys={};forestGunUI.classList.add("hidden");msg("↑ WALK · A SWORD")}
 function forestGunTarget(){
   return minions.filter(m=>!m.done&&!m.defeated&&m.at-progress>=55&&m.at-progress<=FOREST_GUN.reach)
-    .map(m=>{const p=project(m.at,m.lane,H*.43);if(p)p.x-=forestCameraX();return{m,p}})
+    .map(m=>({m,p:project(m.at,m.lane,H*.43)}))
     .filter(v=>v.p)
     .sort((a,b)=>Math.hypot(forestAimX-a.p.x,forestAimY-(a.p.y-28*a.p.scale))-
                  Math.hypot(forestAimX-b.p.x,forestAimY-(b.p.y-28*b.p.scale)))[0]||null;
@@ -66,11 +66,13 @@ function drawForestHands(now){
   const t=swing?Math.min(1,(now-swordAction.start)/ROAD_COMBAT.swing):0;
   const bob=state==="run"&&keys.ArrowUp?Math.sin(progress*.11)*4:0;
   ctx.save();
+  // A small ground shadow and visible sleeves show where Kosuke stands.
+  ctx.fillStyle="rgba(12,37,32,.38)";ctx.beginPath();ctx.ellipse(forestPlayerX(),H*.975,62,12,0,0,7);ctx.fill();
   // Foreground weapon movement only; never translate or rotate the viewport.
   if(armed){
     const reload=forestReloadUntil>now,phase=reload?(forestReloadUntil-now)/FOREST_GUN.reload:0;
     const kick=now-forestShotAt<135?(1-(now-forestShotAt)/135)*22:0;
-    ctx.translate(W*.77,H*.87+phase*75+kick);ctx.rotate(reload?.37*phase:-.13);
+    ctx.translate(forestPlayerX()+W*.22,H*.87+phase*75+kick);ctx.rotate(reload?.37*phase:-.13);
     ctx.fillStyle="#d9ac85";ctx.beginPath();ctx.roundRect(-22,5,36,65,15);ctx.fill();
     ctx.fillStyle="#213d59";ctx.beginPath();ctx.roundRect(-70,-18,175,51,14);ctx.fill();
     ctx.fillStyle="#87e8f6";ctx.fillRect(-38,-13,103,10);
@@ -80,7 +82,7 @@ function drawForestHands(now){
     if(now-forestShotAt<155){ctx.fillStyle="#fff0a1";ctx.beginPath();ctx.arc(-54,-5,20,0,7);ctx.fill()}
   }else{
     const strike=swing?Math.sin(Math.min(1,t/.7)*Math.PI):0;
-    const handX=W*.72+bob-(swing?20*strike:0),handY=H*.88+bob-(swing?25*strike:0);
+    const handX=forestPlayerX()+W*.18+bob-(swing?20*strike:0),handY=H*.88+bob-(swing?25*strike:0);
     const targetAngle=swing?Math.atan2(swordAction.y-handY,swordAction.x-handX)+Math.PI/2:-.23;
     const reach=swing?Math.min(255,Math.max(0,Math.hypot(swordAction.x-handX,swordAction.y-handY)-300))*strike:0;
     ctx.translate(handX,handY);
@@ -101,7 +103,7 @@ function drawForestGunAim(now){
   ctx.moveTo(-49,0);ctx.lineTo(-13,0);ctx.moveTo(13,0);ctx.lineTo(49,0);
   ctx.moveTo(0,-49);ctx.lineTo(0,-13);ctx.moveTo(0,13);ctx.lineTo(0,49);ctx.stroke();ctx.restore();
   if(now-forestShotAt<225){ctx.save();ctx.strokeStyle=forestShotHit?"#fdfaa0":"#a7dbff";
-    ctx.lineWidth=6*(1-(now-forestShotAt)/225);ctx.beginPath();ctx.moveTo(W*.72,H*.80);
+    ctx.lineWidth=6*(1-(now-forestShotAt)/225);ctx.beginPath();ctx.moveTo(forestPlayerX()+W*.17,H*.80);
     ctx.lineTo(forestShotX,forestShotY);ctx.stroke();ctx.restore()}
 }
 const AIM_BOUNDS=''' )
@@ -113,8 +115,6 @@ replace('  drawScenery(hz,now);drawRouteFork(hz);drawRoadObjects(hz,now);drawRun
 '''  drawScenery(hz,now);drawRouteFork(hz);drawRoadObjects(hz,now);
   if(!forestView())drawRunner(now);
   if(state==="run"&&!forestView())drawSword(now);ctx.restore();''')
-replace('ctx.save();ctx.translate(turnShift,0);', 'ctx.save();ctx.translate(turnShift-forestCameraX(),0);')
-replace('const p=target?project(target.at,target.lane,H*.43):null;', 'const p=target?project(target.at,target.lane,H*.43):null;if(p)p.x-=forestCameraX();')
 replace('if(!dead&&swordTarget()===monster&&!swordAction)drawAttackCue(p);', 'if(!dead&&state==="run"&&swordTarget()===monster&&!swordAction)drawAttackCue(p);')
 replace('if(state==="run")updateRoadCombat(now);', 'if(state==="run")updateRoadCombat(now);\nif(state==="forestgun")updateForestGun(dt,now);')
 replace('runStatus.textContent=state==="run"?', '''$("game-shell").classList.toggle("road-mode",state==="forestgun"||state==="run"||state==="bossintro"||state==="roadrecover");

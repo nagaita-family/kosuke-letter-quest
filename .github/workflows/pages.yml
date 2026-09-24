@@ -42,9 +42,9 @@ jobs:
           subprocess.run(['python3', 'enhance_v125.py'], check=True)
           assert hashlib.sha256(Path('game.js').read_bytes()).hexdigest() == '59c05dbbcacd3c90ef9c5d039bac8d4ec9412153a033fc4eff1e3a9f9607d997'
           assert hashlib.sha256(Path('style.css').read_bytes()).hexdigest() == 'd2b543a44a33eba0cf8568528399bf2d9a359bf85bd296c301a6aec9561bdd94'
-          assert hashlib.sha256(Path('enhance_v126.py').read_bytes()).hexdigest() == '87b97d85bad0602ade531974dc21cb2d1f76237cc0d8d6eeee976d93ef664c64'
+          assert hashlib.sha256(Path('enhance_v126.py').read_bytes()).hexdigest() == '9dbc8dfbd214f015fbbc8a6032eec58ba3372fd97977ad690ef698e0b3953e8e'
           subprocess.run(['python3', 'enhance_v126.py'], check=True)
-          assert hashlib.sha256(Path('game.js').read_bytes()).hexdigest() == '8b4973afa5141044f92e14d6268bdb4dfdfc03ffb57d7eb58e9b19fe63a935be'
+          assert hashlib.sha256(Path('game.js').read_bytes()).hexdigest() == '7987e51a7ae6571fbc96c80447e87fe0ccafd97c0ed8cbb1899e6dad6658e18a'
           assert hashlib.sha256(Path('style.css').read_bytes()).hexdigest() == '695416b042b48bfe294a438abc30ef025bd282dd110f72abc1753558c377e447'
           subprocess.run(['node', '--check', 'game.js'], check=True)
           assert 'Kosuke Letter Quest v12.6' in Path('index.html').read_text()

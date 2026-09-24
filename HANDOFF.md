@@ -28,10 +28,11 @@ Generated `game.js`, `style.css`, and expanded v12.4 script are NOT committed.
 - Tuning lives in `ROAD_COMBAT` in the v12.5 upgrade script.
 
 ## GREEN FOREST prototype (stageIndex 0 only)
-- Left/Right changes lane and shifts the first-person world view with the player;
-  the foreground weapon stays screen anchored. Gun targeting and sword impact
-  coordinates use the same camera offset. A browser regression checks left and
-  return-to-center movement. This corrects invisible lateral movement in v12.6.
+- Left/Right changes lane while the road and forward view stay fixed. The
+  foreground body, weapon, and ground shadow follow the player's lane. Gun
+  reticle starts at the current position and world target coordinates stay fixed.
+  Browser regression checks left/center movement and passing a center rock
+  safely from the side lane. This replaces the camera pan from the first fix.
 - The road renderer omits Kosuke's whole body/back and shows only a foreground hand and held sword.
   Existing world geometry, scenery, pickups, branch and collision projection remain intact.
 - A sword attack uses the existing target/hit/XP mechanics, with a large foreground swing.
