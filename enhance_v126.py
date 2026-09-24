@@ -9,6 +9,8 @@ def replace(old,new):
 
 replace('const AIM_BOUNDS=', '''// This prototype is intentionally restricted to GREEN FOREST.
 const forestView=()=>stageIndex===0;
+// Follow the active lane in first person; keep the held weapon screen anchored.
+const forestCameraX=()=>forestView()&&(state==="run"||state==="forestgun")?lateral*300:0;
 const forestGunUI=$("forest-gun-ui"),forestAmmo=$("forest-ammo"),forestGunMessage=$("forest-gun-message");
 let forestAimX=W*.5,forestAimY=H*.60,forestBullets=4,forestReloadUntil=0;
 let forestShotAt=0,forestShotHit=false,forestShotX=0,forestShotY=0;
@@ -27,7 +29,7 @@ function enterForestGun(){
 function leaveForestGun(){if(state!=="forestgun")return;state="run";keys={};forestGunUI.classList.add("hidden");msg("↑ WALK · A SWORD")}
 function forestGunTarget(){
   return minions.filter(m=>!m.done&&!m.defeated&&m.at-progress>=55&&m.at-progress<=FOREST_GUN.reach)
-    .map(m=>({m,p:project(m.at,m.lane,H*.43)}))
+    .map(m=>{const p=project(m.at,m.lane,H*.43);if(p)p.x-=forestCameraX();return{m,p}})
     .filter(v=>v.p)
     .sort((a,b)=>Math.hypot(forestAimX-a.p.x,forestAimY-(a.p.y-28*a.p.scale))-
                  Math.hypot(forestAimX-b.p.x,forestAimY-(b.p.y-28*b.p.scale)))[0]||null;
@@ -111,6 +113,8 @@ replace('  drawScenery(hz,now);drawRouteFork(hz);drawRoadObjects(hz,now);drawRun
 '''  drawScenery(hz,now);drawRouteFork(hz);drawRoadObjects(hz,now);
   if(!forestView())drawRunner(now);
   if(state==="run"&&!forestView())drawSword(now);ctx.restore();''')
+replace('ctx.save();ctx.translate(turnShift,0);', 'ctx.save();ctx.translate(turnShift-forestCameraX(),0);')
+replace('const p=target?project(target.at,target.lane,H*.43):null;', 'const p=target?project(target.at,target.lane,H*.43):null;if(p)p.x-=forestCameraX();')
 replace('if(!dead&&swordTarget()===monster&&!swordAction)drawAttackCue(p);', 'if(!dead&&state==="run"&&swordTarget()===monster&&!swordAction)drawAttackCue(p);')
 replace('if(state==="run")updateRoadCombat(now);', 'if(state==="run")updateRoadCombat(now);\nif(state==="forestgun")updateForestGun(dt,now);')
 replace('runStatus.textContent=state==="run"?', '''$("game-shell").classList.toggle("road-mode",state==="forestgun"||state==="run"||state==="bossintro"||state==="roadrecover");
