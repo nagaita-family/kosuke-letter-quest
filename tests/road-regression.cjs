@@ -34,10 +34,13 @@ const base = process.argv[2] || 'http://127.0.0.1:8765';
   await page.keyboard.up('ArrowUp');const stopped=await probe('progress');await step(500);
   await check('progress',stopped,'release immediately stops');
   await key('ArrowLeft');await step(300);await check('laneIndex',-1,'left lane');
-  await check('forestPlayerX() < W/2-200',true,'first-person body moves left');
-  await check('project(progress+150,0,H*.43).x===W/2',true,'road stays straight ahead');
+  await check('forestPlayerX() < W/2-40',true,'first-person body moves left');
+  await check('forestScreenPoint(project(progress+100,0,H*.43)).x > W/2+90',true,'nearby rock position shifts right');
+  await check('Math.abs(forestWorldShift(H*.43)) < 25 && forestWorldShift(H*.85) < -120',true,'near scenery moves more than horizon');
+  if(process.env.QA_SCREENSHOTS){fs.mkdirSync(process.env.QA_SCREENSHOTS,{recursive:true});await page.screenshot({path:process.env.QA_SCREENSHOTS+'/forest-left.png'})}
   await key('ArrowRight');await step(300);await check('laneIndex',0,'right lane');
-  await check('Math.abs(forestPlayerX()-W/2) < 7',true,'body returns to center');
+  await check('Math.abs(forestPlayerX()-W/2) < 3',true,'body returns to center');
+  if(process.env.QA_SCREENSHOTS)await page.screenshot({path:process.env.QA_SCREENSHOTS+'/forest-center.png'});
   await page.keyboard.down('ArrowUp');await page.evaluate(()=>window.dispatchEvent(new Event('blur')));
   await step(500);await check('progress',stopped,'focus loss clears forward input');await page.keyboard.up('ArrowUp');
 
@@ -86,7 +89,7 @@ const base = process.argv[2] || 'http://127.0.0.1:8765';
   }
   await fixture();await probe("minions=[];road=[{kind:'rock',at:450,lane:0,done:false}];impactStop=0");
   await key('ArrowLeft');await step(300);
-  await check('forestPlayerX() < W/2-200',true,'body visibly sidesteps rock');
+  await check('forestPlayerX() < W/2-40',true,'body visibly sidesteps rock');
   await page.keyboard.down('ArrowUp');await step(650);await page.keyboard.up('ArrowUp');
   await check('[road[0].done,playerHP,impactStop]',[true,100,0],'side lane safely passes center rock');
   for(const choice of ['safe','risk']){

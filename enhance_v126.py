@@ -9,8 +9,13 @@ def replace(old,new):
 
 replace('const AIM_BOUNDS=', '''// This prototype is intentionally restricted to GREEN FOREST.
 const forestView=()=>stageIndex===0;
-// The path stays ahead. The foreground body moves to the selected lane.
-const forestPlayerX=()=>W*.5+lateral*390;
+// Translating sideways shifts nearby geometry more than the far horizon.
+// A little foreground travel makes the lane change legible without sliding off screen.
+const FOREST_PARALLAX=.78;
+const forestTravel=()=>forestView()&&(state==="run"||state==="forestgun")?lateral*FOREST_PARALLAX:0;
+const forestPlayerX=()=>W*.5+lateral*390*(1-FOREST_PARALLAX);
+const forestWorldShift=y=>forestTravel()*(35+355*Math.max(0,(y-H*.43)/(H-H*.43)));
+const forestScreenPoint=p=>p?{...p,x:p.x-forestWorldShift(p.y)}:null;
 const forestGunUI=$("forest-gun-ui"),forestAmmo=$("forest-ammo"),forestGunMessage=$("forest-gun-message");
 let forestAimX=W*.5,forestAimY=H*.60,forestBullets=4,forestReloadUntil=0;
 let forestShotAt=0,forestShotHit=false,forestShotX=0,forestShotY=0;
@@ -29,7 +34,7 @@ function enterForestGun(){
 function leaveForestGun(){if(state!=="forestgun")return;state="run";keys={};forestGunUI.classList.add("hidden");msg("↑ WALK · A SWORD")}
 function forestGunTarget(){
   return minions.filter(m=>!m.done&&!m.defeated&&m.at-progress>=55&&m.at-progress<=FOREST_GUN.reach)
-    .map(m=>({m,p:project(m.at,m.lane,H*.43)}))
+    .map(m=>({m,p:forestScreenPoint(project(m.at,m.lane,H*.43))}))
     .filter(v=>v.p)
     .sort((a,b)=>Math.hypot(forestAimX-a.p.x,forestAimY-(a.p.y-28*a.p.scale))-
                  Math.hypot(forestAimX-b.p.x,forestAimY-(b.p.y-28*b.p.scale)))[0]||null;
@@ -66,7 +71,7 @@ function drawForestHands(now){
   const t=swing?Math.min(1,(now-swordAction.start)/ROAD_COMBAT.swing):0;
   const bob=state==="run"&&keys.ArrowUp?Math.sin(progress*.11)*4:0;
   ctx.save();
-  // A small ground shadow and visible sleeves show where Kosuke stands.
+  // Ground contact and the held weapon move a little as the world shifts around them.
   ctx.fillStyle="rgba(12,37,32,.38)";ctx.beginPath();ctx.ellipse(forestPlayerX(),H*.975,62,12,0,0,7);ctx.fill();
   // Foreground weapon movement only; never translate or rotate the viewport.
   if(armed){
@@ -115,6 +120,14 @@ replace('  drawScenery(hz,now);drawRouteFork(hz);drawRoadObjects(hz,now);drawRun
 '''  drawScenery(hz,now);drawRouteFork(hz);drawRoadObjects(hz,now);
   if(!forestView())drawRunner(now);
   if(state==="run"&&!forestView())drawSword(now);ctx.restore();''')
+replace('ctx.save();ctx.translate(turnShift,0);', '''ctx.save();ctx.translate(turnShift,0);
+  if(forestTravel()){
+    const slope=-forestTravel()*355/(H-hz);
+    ctx.transform(1,0,slope,1,forestTravel()*355*hz/(H-hz)-forestTravel()*35,0);
+  }''')
+replace('const p=target?project(target.at,target.lane,H*.43):null;', 'const p=target?forestScreenPoint(project(target.at,target.lane,H*.43)):null;')
+replace('x:p?p.x:W/2+lateral*300,y:p?', 'x:p?p.x:(forestView()?forestPlayerX():W/2+lateral*300),y:p?')
+replace('ctx.save();ctx.translate(x,y);\n  let animScale=1;', 'ctx.save();ctx.translate(x-forestWorldShift(y),y);\n  let animScale=1;')
 replace('if(!dead&&swordTarget()===monster&&!swordAction)drawAttackCue(p);', 'if(!dead&&state==="run"&&swordTarget()===monster&&!swordAction)drawAttackCue(p);')
 replace('if(state==="run")updateRoadCombat(now);', 'if(state==="run")updateRoadCombat(now);\nif(state==="forestgun")updateForestGun(dt,now);')
 replace('runStatus.textContent=state==="run"?', '''$("game-shell").classList.toggle("road-mode",state==="forestgun"||state==="run"||state==="bossintro"||state==="roadrecover");
