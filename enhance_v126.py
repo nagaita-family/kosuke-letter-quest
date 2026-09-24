@@ -77,14 +77,18 @@ function drawForestHands(now){
     if(reload){ctx.fillStyle="#b8d5e2";ctx.fillRect(-13,32,25,50+phase*28)}
     if(now-forestShotAt<155){ctx.fillStyle="#fff0a1";ctx.beginPath();ctx.arc(-54,-5,20,0,7);ctx.fill()}
   }else{
-    ctx.translate(W*.72+bob,H*.88+bob);
-    ctx.rotate(-.23+(swing?Math.sin(Math.min(1,t/.7)*Math.PI)*-.8:0));
+    const strike=swing?Math.sin(Math.min(1,t/.7)*Math.PI):0;
+    const handX=W*.72+bob-(swing?20*strike:0),handY=H*.88+bob-(swing?25*strike:0);
+    const targetAngle=swing?Math.atan2(swordAction.y-handY,swordAction.x-handX)+Math.PI/2:-.23;
+    const reach=swing?Math.min(255,Math.max(0,Math.hypot(swordAction.x-handX,swordAction.y-handY)-300))*strike:0;
+    ctx.translate(handX,handY);
+    ctx.rotate(-.23+(targetAngle+.23)*strike);
     ctx.fillStyle="#d9ac85";ctx.beginPath();ctx.roundRect(-13,9,34,85,14);ctx.fill();
     ctx.fillStyle="#88674b";ctx.beginPath();ctx.roundRect(-23,-25,43,57,11);ctx.fill();
-    ctx.fillStyle="#d9f8ff";ctx.beginPath();ctx.moveTo(-16,-25);ctx.lineTo(-25,-240-(swing?70:0));ctx.lineTo(0,-295-(swing?70:0));ctx.lineTo(14,-25);ctx.closePath();ctx.fill();
+    ctx.fillStyle="#d9f8ff";ctx.beginPath();ctx.moveTo(-16,-25);ctx.lineTo(-25,-240-reach);ctx.lineTo(0,-295-reach);ctx.lineTo(14,-25);ctx.closePath();ctx.fill();
     ctx.strokeStyle="#7dcaff";ctx.lineWidth=5;ctx.stroke();
     if(swing){ctx.strokeStyle="#fff6af";ctx.lineWidth=8;ctx.shadowColor="#ffffbd";ctx.shadowBlur=14;
-      ctx.beginPath();ctx.moveTo(-95,-210);ctx.quadraticCurveTo(20,-335,195,-290);ctx.stroke()}
+      ctx.beginPath();ctx.moveTo(-95,-210-reach*.6);ctx.quadraticCurveTo(20,-335-reach,195,-290-reach*.4);ctx.stroke()}
   }
   ctx.restore();
 }
@@ -144,7 +148,8 @@ css=Path('style.css');css.write_text(css.read_text()+'''
 #forest-gun-ui{position:absolute;left:50%;top:22%;transform:translateX(-50%);z-index:24;
   text-align:center;pointer-events:none;color:#fff;font-weight:1000;text-shadow:0 2px 8px #11272a}
 #forest-gun-ui #forest-ammo{color:#f5eea6;font-size:36px;letter-spacing:8px}
-#forest-gun-message{border-radius:99px;background:rgba(3,23,29,.75);padding:7px 17px;font-size:17px;white-space:nowrap}
+#forest-gun-ui #forest-ammo{line-height:1.3;margin-bottom:18px}
+#forest-gun-message{display:block;border-radius:99px;background:rgba(3,23,29,.75);padding:9px 20px;font-size:17px;white-space:nowrap}
 #game-shell.forest-gun #road-tip{display:none}
 ''')
 print('v12.6 forest first-person assets built')
