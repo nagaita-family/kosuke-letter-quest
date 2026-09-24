@@ -62,6 +62,17 @@ const base = process.argv[2] || 'http://127.0.0.1:8765';
   await check('state','roadrecover','zero HP enters short road recovery');await step(950);
   await check('[state,playerHP,!!keys.ArrowUp]', ['run',50,false],'road recovery resumes safely');
 
+  await fixture(270,-.58);await key('ArrowDown');await check('[state,forestBullets]',['forestgun',4],'Green Forest first-person gun draws');
+  const gunStop=await probe('progress');await page.keyboard.down('ArrowUp');await step(480);await page.keyboard.up('ArrowUp');
+  await check('progress',gunStop,'gun aiming pauses travel');
+  for(let i=0;i<4;i++){await probe('forestAimX=1100;forestAimY=200');await key('Space')}
+  await check('[forestBullets,xp,minions[0].defeated]',[0,0,false],'four misses consume only ammunition');
+  await check('forestGunMessage.textContent','RELOADING...','visible automatic reload');
+  await step(900);await check('forestBullets',4,'reload restores bullets');
+  await probe('let p=project(minions[0].at,minions[0].lane,H*.43);forestAimX=p.x;forestAimY=p.y-28*p.scale');
+  await key('Space');await check('[minions[0].defeated,xp,forestBullets,playerHP]',[true,8,3,100],'aimed gun hit defeats enemy');
+  await key('Escape');await check('state','run','holster returns to walking');
+
   for(const kind of ['rock','heal','core']){
     await fixture();await probe(`minions=[];playerHP=60;cores=0;road=[{kind:'${kind}',at:405,lane:0,done:false}]`);
     await page.keyboard.down('ArrowUp');await step(32);await page.keyboard.up('ArrowUp');

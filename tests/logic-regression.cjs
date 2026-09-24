@@ -20,6 +20,17 @@ fixture(180,.58);eq('!!swordTarget()',false);fixture(260);key('KeyA');tick(500);
 fixture(45);key('ArrowUp');tick(600);eq('[playerHP,xp,minions[0].done,minions[0].defeated]',[94,0,false,false]);tick(1500);eq('playerHP',94);up('ArrowUp');key('KeyA');tick(176);eq('[xp,playerHP]',[8,94]);
 fixture(45);key('ArrowUp');tick(32);key('ArrowRight');tick(1600);up('ArrowUp');eq('[minions[0].done,minions[0].defeated,xp]',[true,false,0]);
 fixture(45);p('playerHP=6');key('ArrowUp');tick(32);up('ArrowUp');eq('state','roadrecover');tick(950);eq('[state,playerHP]',['run',50]);
+fixture(270,-.58);key('ArrowDown');eq('[state,forestBullets]',['forestgun',4]);
+const frozen=p('progress');key('ArrowUp');tick(480);up('ArrowUp');eq('progress',frozen);
+for(let i=0;i<4;i++){p('forestAimX=1100;forestAimY=200');key('Space')}eq('[state,forestBullets,xp,minions[0].defeated]',['forestgun',0,0,false]);
+tick(900);eq('forestBullets',4);
+p('forestAimX=project(minions[0].at,minions[0].lane,H*.43).x;forestAimY=project(minions[0].at,minions[0].lane,H*.43).y-28*project(minions[0].at,minions[0].lane,H*.43).scale');
+key('Space');eq('[minions[0].defeated,xp,forestBullets,playerHP]',[true,8,3,100]);
+key('Escape');eq('state','run');tick(900);eq('minions[0].done',true);
+fixture(180,0);key('ArrowDown');key('ArrowRight');assert(p('forestAimX')>640);key('KeyA');eq('state','run');
+// Rendering a forest road must never call the third-person runner; stage 2 still does.
+p('let oldRunner=drawRunner;window.runnerCalls=0;drawRunner=()=>{window.runnerCalls++};render(performance.now());drawRunner=oldRunner');eq('window.runnerCalls',0);
+p('stageIndex=1;let oldRunner=drawRunner;window.runnerCalls=0;drawRunner=()=>{window.runnerCalls++};render(performance.now());drawRunner=oldRunner');eq('window.runnerCalls',1);p('stageIndex=0');
 for(const kind of ['rock','heal','core']){fixture();p(`minions=[];playerHP=60;cores=0;road=[{kind:'${kind}',at:405,lane:0,done:false}]`);key('ArrowUp');tick(32);up('ArrowUp');eq('road[0].done',true);if(kind==='heal')eq('playerHP',82);if(kind==='core')eq('cores',2)}
 for(const choice of ['safe','risk']){p("loadStage(0);state='run';currentEncounter=1;minions=[];road=[];progress=stages[0].branchAt-11;branchPhase='approach'");key('ArrowUp');tick(100);up('ArrowUp');eq('branchPhase','choose');key(choice==='safe'?'ArrowLeft':'ArrowRight');key('Space');tick(1550);eq('[branchPhase,branchChosen,!!keys.ArrowUp]',['done',choice,false])}
 fixture();p('xp=56');key('KeyA');tick(1000);eq('state','levelup');tick(2300);eq('state','run');
