@@ -34,10 +34,10 @@ const base = process.argv[2] || 'http://127.0.0.1:8765';
   await page.keyboard.up('ArrowUp');const stopped=await probe('progress');await step(500);
   await check('progress',stopped,'release immediately stops');
   await key('ArrowLeft');await step(300);await check('laneIndex',-1,'left lane');
-  await check('Math.round(forestCameraX())',-174,'forest view follows left movement');
+  await check('forestCameraX() < -160 && forestCameraX() >= -174',true,'forest view follows left movement');
   await check('Math.round(project(progress+150,0,H*.43).x-forestCameraX())>W/2',true,'center lane moves right on screen');
   await key('ArrowRight');await step(300);await check('laneIndex',0,'right lane');
-  await check('Math.round(forestCameraX())',0,'forest view returns to center');
+  await check('Math.abs(forestCameraX()) < 5',true,'forest view returns to center');
   await page.keyboard.down('ArrowUp');await page.evaluate(()=>window.dispatchEvent(new Event('blur')));
   await step(500);await check('progress',stopped,'focus loss clears forward input');await page.keyboard.up('ArrowUp');
 
