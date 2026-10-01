@@ -1,15 +1,15 @@
-# Kosuke Letter Quest — v12.6
+# Kosuke Letter Quest — v12.7
 
 ## Canonical state
 - Repository: `nagaita-family/kosuke-letter-quest`, `main`.
 - Production: https://family.nagaita.jp/kosuke-letter-quest/
-- v12.6 adds the GREEN FOREST first-person vertical slice on top of the v12.5 manual-movement system.
+- v12.7 promotes the verified v12.6 first-person road experience to all ten worlds without redesigning the established controls.
 - Check the release's Actions result for actual deployment and production verification status.
 
 ## Build (do not migrate sources incidentally)
 Keep the original v12.3 b64 chunks and `enhance_v124.py.xz.b64` unchanged.
 The Pages workflow restores v12.3, validates and applies v12.4, then validates
-and applies `enhance_v125.py`, then `enhance_v126.py`. Output hashes are checked at each version.
+and applies `enhance_v125.py`, `enhance_v126.py`, then the small `enhance_v127.py` all-world promotion. Earlier generated outputs remain hash-pinned; v12.7 is script-hash checked and covered by syntax, logic and browser regression.
 The new script is an incremental upgrade, not a replacement source tree.
 When changing the script, update its SHA and the generated output hashes in Pages.
 Generated `game.js`, `style.css`, and expanded v12.4 script are NOT committed.
@@ -27,7 +27,7 @@ Generated `game.js`, `style.css`, and expanded v12.4 script are NOT committed.
 - Road level-ups display after swing/defeat effects, then return to manual walking.
 - Tuning lives in `ROAD_COMBAT` in the v12.5 upgrade script.
 
-## GREEN FOREST prototype (stageIndex 0 only)
+## First-person road — all ten worlds
 - Left/Right shifts the first-person position across the road with depth based
   parallax: close road, rocks, trees and small monsters travel more on screen
   than the distant horizon. The forward direction remains straight. The hand,
@@ -47,10 +47,10 @@ Generated `game.js`, `style.css`, and expanded v12.4 script are NOT committed.
 - Gun hits a living small monster only when the aimed reticle is near its projected position;
   generous hit radius, one hit/8 XP. MISS consumes ammo only. The shot draws a local tracer
   and muzzle flash; the enemy shares the established recoil/defeat animation.
-- A stage transition resets the gun state; later worlds retain the v12.5 runner and controls.
+- A stage transition resets the gun state; every world now uses the same verified first-person road controls. Internal `forest*` identifiers remain legacy implementation names.
 - The existing large-enemy letter choices, three-shot battle aiming and shield remain intact.
   Do not confuse GREEN FOREST's roaming gun magazine with the large-enemy battle ammo.
-- All gun tuning is in `FOREST_GUN` and `forestGunTarget` in `enhance_v126.py`.
+- All gun tuning remains in `FOREST_GUN` and `forestGunTarget` in `enhance_v126.py`; `enhance_v127.py` only removes the Stage 1 gate.
 
 ## Preserved
 Ten worlds, routes, rocks, heals, cores, English audio / three choices / R repeat,

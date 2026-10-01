@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Build and validate v12.6
+      - name: Build and validate v12.7
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -46,10 +46,14 @@ jobs:
           subprocess.run(['python3', 'enhance_v126.py'], check=True)
           assert hashlib.sha256(Path('game.js').read_bytes()).hexdigest() == 'c7fc6d5a401da56504764a23b6f209a68d1bb84458fd003816b56c5ba694d342'
           assert hashlib.sha256(Path('style.css').read_bytes()).hexdigest() == '695416b042b48bfe294a438abc30ef025bd282dd110f72abc1753558c377e447'
+          assert hashlib.sha256(Path('enhance_v127.py').read_bytes()).hexdigest() == '09cbda7a37ab57df78253746c3d9a1cbb72a01ef61fdd202f96337ccfc4e5cca'
+          subprocess.run(['python3', 'enhance_v127.py'], check=True)
+          assert 'const forestView=()=>true;' in Path('game.js').read_text()
+          print('v12.7 game sha256', hashlib.sha256(Path('game.js').read_bytes()).hexdigest())
           subprocess.run(['node', '--check', 'game.js'], check=True)
-          assert 'Kosuke Letter Quest v12.6' in Path('index.html').read_text()
+          assert 'Kosuke Letter Quest v12.7' in Path('index.html').read_text()
           subprocess.run(['node', 'tests/logic-regression.cjs', 'game.js'], check=True)
-          print('v12.6 build verified')
+          print('v12.7 build verified')
           PY
       - name: Browser regression tests
         run: |

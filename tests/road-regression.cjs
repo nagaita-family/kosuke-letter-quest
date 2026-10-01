@@ -127,6 +127,10 @@ const base = process.argv[2] || 'http://127.0.0.1:8765';
   for(let stage=0;stage<10;stage++){
     await check('stageIndex',stage,'stage progression '+(stage+1));
     assert(await probe('minions.length')>0);
+    await check('forestView()',true,'first-person road enabled '+(stage+1));
+    await probe("state='run';branchPhase='none';keys={};swordAction=null;forestGunUI.classList.add('hidden')");
+    await key('ArrowDown');await check('state','forestgun','gun available '+(stage+1));
+    await key('Escape');await check('state','run','gun holsters '+(stage+1));
     await probe('progress=minions[0].at-100;lateral=targetLateral=minions[0].lane;laneIndex=Math.round(lateral/.58)');
     await key('KeyA');await step(900);assert(await probe('minions.some(m=>m.defeated)'));
     for(let encounter=0;encounter<3;encounter++){
