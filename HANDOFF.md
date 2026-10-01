@@ -9,7 +9,7 @@
 ## Build (do not migrate sources incidentally)
 Keep the original v12.3 b64 chunks and `enhance_v124.py.xz.b64` unchanged.
 The Pages workflow restores v12.3, validates and applies v12.4, then validates
-and applies `enhance_v125.py`, `enhance_v126.py`, then the small `enhance_v127.py` all-world promotion. Earlier generated outputs remain hash-pinned; v12.7 is script-hash checked and covered by syntax, logic and browser regression.
+and applies `enhance_v125.py`, `enhance_v126.py`, then the small `enhance_v127.py` all-world promotion. Generated outputs are hash-pinned through v12.7; syntax, logic and browser regression run before deployment.
 The new script is an incremental upgrade, not a replacement source tree.
 When changing the script, update its SHA and the generated output hashes in Pages.
 Generated `game.js`, `style.css`, and expanded v12.4 script are NOT committed.

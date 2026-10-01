@@ -49,7 +49,7 @@ jobs:
           assert hashlib.sha256(Path('enhance_v127.py').read_bytes()).hexdigest() == '09cbda7a37ab57df78253746c3d9a1cbb72a01ef61fdd202f96337ccfc4e5cca'
           subprocess.run(['python3', 'enhance_v127.py'], check=True)
           assert 'const forestView=()=>true;' in Path('game.js').read_text()
-          print('v12.7 game sha256', hashlib.sha256(Path('game.js').read_bytes()).hexdigest())
+          assert hashlib.sha256(Path('game.js').read_bytes()).hexdigest() == 'e2f0336f44b239ff752cba830ad21793bef436126cf2316ad9f5dfee3732e6fa'
           subprocess.run(['node', '--check', 'game.js'], check=True)
           assert 'Kosuke Letter Quest v12.7' in Path('index.html').read_text()
           subprocess.run(['node', 'tests/logic-regression.cjs', 'game.js'], check=True)

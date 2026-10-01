@@ -28,9 +28,12 @@ p('forestAimX=project(minions[0].at,minions[0].lane,H*.43).x;forestAimY=project(
 key('Space');eq('[minions[0].defeated,xp,forestBullets,playerHP]',[true,8,3,100]);
 key('Escape');eq('state','run');tick(900);eq('minions[0].done',true);
 fixture(180,0);key('ArrowDown');key('ArrowRight');assert(p('forestAimX')>640);key('KeyA');eq('state','run');
-// Rendering a forest road must never call the third-person runner; stage 2 still does.
-p('let oldRunner=drawRunner;window.runnerCalls=0;drawRunner=()=>{window.runnerCalls++};render(performance.now());drawRunner=oldRunner');eq('window.runnerCalls',0);
-p('stageIndex=1;let oldRunner=drawRunner;window.runnerCalls=0;drawRunner=()=>{window.runnerCalls++};render(performance.now());drawRunner=oldRunner');eq('window.runnerCalls',1);p('stageIndex=0');
+// Every road world is first-person in v12.7; none may render the third-person runner.
+for(let s=0;s<10;s++){
+  p(`stageIndex=${s};(()=>{const oldRunner=drawRunner;window.runnerCalls=0;drawRunner=()=>{window.runnerCalls++};render(performance.now());drawRunner=oldRunner})()`);
+  eq('window.runnerCalls',0);
+}
+p('stageIndex=0');
 for(const kind of ['rock','heal','core']){fixture();p(`minions=[];playerHP=60;cores=0;road=[{kind:'${kind}',at:405,lane:0,done:false}]`);key('ArrowUp');tick(32);up('ArrowUp');eq('road[0].done',true);if(kind==='heal')eq('playerHP',82);if(kind==='core')eq('cores',2)}
 for(const choice of ['safe','risk']){p("loadStage(0);state='run';currentEncounter=1;minions=[];road=[];progress=stages[0].branchAt-11;branchPhase='approach'");key('ArrowUp');tick(100);up('ArrowUp');eq('branchPhase','choose');key(choice==='safe'?'ArrowLeft':'ArrowRight');key('Space');tick(1550);eq('[branchPhase,branchChosen,!!keys.ArrowUp]',['done',choice,false])}
 fixture();p('xp=56');key('KeyA');tick(1000);eq('state','levelup');tick(2300);eq('state','run');
@@ -43,7 +46,9 @@ p('selected=options.findIndex(x=>x!==target)');key('Space');eq('state','wrong');
 p("state='battle';resultLock=false;cores=8;enemyHP=100");key('ArrowUp');eq('state','special');key('ArrowLeft');key('ArrowLeft');key('Space');eq('cores',5);tick(4500);
 p('reset();start()');
 for(let s=0;s<10;s++){
- eq('stageIndex',s);assert(p('minions.length')>0);p('progress=minions[0].at-100;lateral=targetLateral=minions[0].lane;laneIndex=Math.round(lateral/.58)');key('KeyA');tick(900);assert(p('minions.some(m=>m.defeated)'));
+ eq('stageIndex',s);eq('forestView()',true);assert(p('minions.length')>0);
+ p("state='run';branchPhase='none';keys={};swordAction=null");key('ArrowDown');eq('state','forestgun');key('Escape');eq('state','run');
+ p('progress=minions[0].at-100;lateral=targetLateral=minions[0].lane;laneIndex=Math.round(lateral/.58)');key('KeyA');tick(900);assert(p('minions.some(m=>m.defeated)'));
  for(let e=0;e<3;e++){
   p("state='run';keys={};progress=encounters[currentEncounter].at;startBattle();selected=options.indexOf(target)");key('Space');p('enemyHP=1;aimX=aimingEnemyX(performance.now());aimY=H*.47');key('Space');tick(850);eq('state','victory');tick(1250);
   for(let n=0;n<12&&p("state==='levelup'");n++)tick(2300);
